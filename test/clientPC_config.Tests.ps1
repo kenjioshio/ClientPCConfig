@@ -55,29 +55,36 @@ Describe "ClientPC_Config checking" {
 }
 
 Describe "Check Environment Variables of System" {
-    $result =$false
+
     #$envVal_Path = $env:Path
     #PCのプロパティーなどから取得する環境変数は変更後再起動しないと反映されないのでRegistoryから直接取得するのがBest
          
     $envVal_Path =(Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment").GetValue("Path")
     $envPathObj= $envVal_Path.split(";")
 
-    foreach($path in $envPathObj){
-        if($path -eq "C:\Program Files\TortoiseSVN\bin"){
-            $result = $true
-            #Write-Host "C:\Program Files\TortoiseSVN\bin is exist as an Path Environment value "
-        }
-    }
-      
     Context "Check Evironment Variable 'Path' for SVN"{
+        $result =$false
+        foreach($path in $envPathObj){
+            if($path -eq "C:\Program Files\TortoiseSVN\bin"){
+                $result = $true
+                #Write-Host "C:\Program Files\TortoiseSVN\bin is exist as an Path Environment value "
+            }
+        } 
         It "'C:\Program Files\TortoiseSVN\bin' should be exist in environment variable 'Path'." {
-            $result | Should be $true
+                $result | Should be $true     
         }
-    }
+    }   
 
     Context "Chekc Evironment Variable 'Path' for  NUnit"{
+        $result =$false
+        foreach($path in $envPathObj){
+            if($path -eq "C:\Program Files (x86)\NUnit 2.6.4\bin"){
+                $result = $true
+            }
+        } 
         It "'C:\Program Files (x86)\NUnit 2.6.4\bin' should be exist in environment variable 'Path'." {
             $result | Should be $true
         }
     }
+
 }
