@@ -105,7 +105,7 @@ Describe ":Check Environment Variables of this PC." {
     #Registoryからすべての環境変数を取得
     $envVarObj =(Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment").GetValueNames()
 
-    Context ":Check 'Path 'envirnment variable is exist and the value."{
+    Context ":Check envirnment variables are exist and that values are correct."{
         It "'Path'envirnment variable should be exist in this PC."{
             $result =$false
             foreach($ev in $envVarObj){ 
@@ -116,7 +116,7 @@ Describe ":Check Environment Variables of this PC." {
             $result | Should be $true 
           }
         #環境変数'Path'が存在してることを確認してからPathの値を確認
-        if($result -eq $true) {
+            if($result -eq $true) {
             $PathVaule =(Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment").GetValue("Path")
             $PathValueObj= $PathVaule.split(";")
             #環境変数をファイルに落としてContainを使うとエスケープが面倒なので、時間はかかるが'；'で区切って、配列化し、オブジェクトとしてToolごとにループを回して比較。
@@ -163,9 +163,10 @@ Describe ":Check Environment Variables of this PC." {
             else{
                 $result =$true
             }
+            
             It "'C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools\' should be exist in environment variable 'VS120COMNTOOLS'."{
-             $result | Should be $true  
-            } 
+                $result | Should be $true  
+                } 
         }     
 
     }
