@@ -115,7 +115,7 @@ Describe ":Check Environment Variables of this PC."{
             }
             $result | Should be $true 
         }
-            #環境変数'Path'が存在してることを確認してからPathの値を確認
+            #環境変数'Path'が存在してることを確認してからその値を確認
             if($result -eq $true){
                 $PathVaule =(Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment").GetValue("Path")
                 $PathValueObj= $PathVaule.split(";")
@@ -144,7 +144,7 @@ Describe ":Check Environment Variables of this PC."{
                 }
        
             } 
-        #環境変数'VS120COMNTOOLS'が存在してることを確認してからPathの値を確認
+        #環境変数'VS120COMNTOOLS'が存在してることを確認してからその値を確認
         It "'VS120COMNTOOLS'envirnment variable should be exist in this PC."{
             $result =$false
             foreach($ev in $envVarObj){ 
@@ -170,6 +170,21 @@ Describe ":Check Environment Variables of this PC."{
             } 
         }     
 
+    }
+}
+
+Describe ":Check User Access Contorol of this PC."{
+#UACを無効であるかどうかのチェックをします。
+    Context ": Check whether UAC is disable or not."{
+        It "UAC should be disable in this PC."{
+            #Resitory Keyでの値は無効=0 or 有効=1もしくはこのKeyが存在しない場合のみ。UACのレベルは判断できない（ぽい）
+            $cUAL =  (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("EnableLUA")
+            $result = $false
+            if($cUAL -eq 0){
+                $result = $true       
+            }
+                $result | Should be $true 
+        }
     }
 }
  
