@@ -1,4 +1,9 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+﻿# Version="1.0.0.0"
+# Product="" 　　　
+# Copyright="Kenji Oshio" 
+# Company=""
+
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'. "$here\$sut"
 
 Describe ":Checking whether Tools installation and the configuration of this PC are completed or not."{
@@ -174,7 +179,7 @@ Describe ":Check Environment Variables of this PC."{
 }
 
 Describe ":Check User Access Contorol of this PC."{
-#UACを無効であるかどうかのチェックをします。
+#UACが無効かどうかのチェックをします。
     Context ": Check whether UAC is disable or not."{
         It "UAC should be disable in this PC."{
             #Resitory Keyでの値は無効=0 or 有効=1もしくはこのKeyが存在しない場合のみ。UACのレベルは判断できない（ぽい）
@@ -183,8 +188,37 @@ Describe ":Check User Access Contorol of this PC."{
             if($cUAL -eq 0){
                 $result = $true       
             }
-                $result | Should be $true 
+            $result | Should be $true 
         }
+
+    }
+}
+
+#NTPとして確認する設定は他にもあるけどとりあえず2ケース
+Describe ":Check NTP Configuration of this PC."{
+    Context ": Check whether NTP Configuration is desired state of not."{
+        $NTPSvr = (Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters").GetValue("NtpServer")       
+
+        $NTPSvrList= $NTPSvr.split(",")
+        It "NTP Server should be 'ntp.nict.jp'."{
+            $result = $false
+            foreach($ntsl in $NTPSvrList){
+                if($ntsl -eq "ntp.nict.jp" ){
+                    $result = $true       
+                }
+            }      
+            $result | Should be $true             
+        }    
+              
+        It "Time Zone should be 'Tokyo Standard Time'."{
+            $tZone = (Get-ItemProperty "registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation").TimeZoneKeyName
+            $result = $false
+            if($tZone  -eq "Tokyo Standard Time"){
+                $result = $true       
+            }
+            $result | Should be $true 
+        }
+        
     }
 }
  
