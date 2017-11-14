@@ -174,19 +174,26 @@ Describe ":Check Environment Variables of this PC."{
                 $result | Should be $true  
             } 
         }     
-
     }
 }
 
 Describe ":Check User Access Contorol of this PC."{
 #UACが無効かどうかのチェックをします。
     Context ": Check whether UAC is disable or not."{
-        It "UAC should be disable in this PC."{
-            #Resitory Keyでの値は無効=0 or 有効=1もしくはこのKeyが存在しない場合のみ。UACのレベルは判断できない（ぽい）
-            $cUAL =  (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("EnableLUA")
+        It "UAC should be disable(Level=0) in this PC."{
+            #Resitory Keyでの値でUACの状態を判断
+
+            #$cUAL =  (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("EnableLUA")
+            $val_CPBA= (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("ConsentPromptBehaviorAdmin")
+            $val_PoSD= (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("PromptOnSecureDesktop")
+            #UAC Level 3 = Registryの'ConsentPromptBehaviorAdmin'が'2'でかつ'PromptOnSecureDesktop'が'1'.          
+            #UAC Level 2 = Registryの'ConsentPromptBehaviorAdmin'が'5'でかつ'PromptOnSecureDesktop'が'1'.   (Windows Default Value)         
+            #UAC Level 1 = Registryの'ConsentPromptBehaviorAdmin'が'5'でかつ'PromptOnSecureDesktop'が'0'.          
+            #UAC Level 0 = Registryの'ConsentPromptBehaviorAdmin'が'0'でかつ'PromptOnSecureDesktop'が'0'.
             $result = $false
-            if($cUAL -eq 0){
+            if(($val_CPBA -eq 0) -and ($val_PoSD -eq 0)){
                 $result = $true       
+            
             }
             $result | Should be $true 
         }
@@ -197,7 +204,7 @@ Describe ":Check User Access Contorol of this PC."{
 #NTPとして確認する設定は他にもあるけどとりあえず2ケース
 Describe ":Check NTP Configuration of this PC."{
     Context ": Check whether NTP Configuration is desired state of not."{
-        $NTPSvr = (Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters").GetValue("NtpServer")       
+        $NTPSvr = (Get-Item "Registry::HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters").GetValue("NtpServer")       
 
         $NTPSvrList= $NTPSvr.split(",")
         It "NTP Server should be 'ntp.nict.jp'."{
@@ -217,8 +224,77 @@ Describe ":Check NTP Configuration of this PC."{
                 $result = $true       
             }
             $result | Should be $true 
-        }
-        
+        }       
     }
 }
- 
+
+Describe ":Check Network configuration."{
+    Context ":Check Added firewall rule and that details."{
+        #Powershellの"Get-NetFirewallRule" だと取得できるProperty値が限られているようなのでRegistryから取得する。 
+        $fwRulesObj = (Get-ItemProperty "registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules")
+        #取得したオブジェクトはカスタムオブジェクトなのでデータをさらに加工する必要がある。
+        $result = $false
+        foreach($fw in $fwRulesObj)
+        {
+            #Firewallのルールが追加される場合、追加したルールをチェックするため、このIf文のようなTest suitesをelseステートメントとして追加すること。
+            if($fw.'UDP 123')
+            {
+                $fwRuleValues = ($fw.'UDP 123').Split("|")
+                $result = $true
+                It "The name of firewall rule 'UDP 123' should exist."{
+                    $result | should be $true
+                }
+     
+                #Write-Host $fwRuleValues
+                foreach($fwV in $fwRuleValues)
+                {
+                    #Write-Host $fwV
+                    switch($fwV)
+                    {     
+
+                        'Action=Allow'{
+                            It "The controll property of this firewall rule should be 'Allow'."{
+                                 $fwV | should be 'Action=Allow'                       
+                            }
+                        }
+                        'Active=TRUE'{
+                            It "This firewall rule should be 'Active'."{
+                                 $fwV | should be 'Active=TRUE'                       
+                            }
+                        }
+                        'Dir=In'{
+                            It "This firewall rule should be 'Inbound'."{
+                                 $fwV | should be 'Dir=In'                       
+                            }
+                        }
+                        'LPort=123'{
+                            It "This firewall rule should allow local port123."{
+                                 $fwV | should be 'LPort=123'                       
+                            }
+                        }
+                        'Protocol=17'{
+                            It "The type of protocol of this firewall rule should be '17'. '17' means 'UDP'."{
+                                 $fwV | should be 'Protocol=17'                       
+                            }
+                        }
+                        'Profile=Domain'{
+                            It "The 'Profile' of this firewall rule should have 'Domain'."{
+                                 $fwV | should be 'Profile=Domain'                       
+                            }
+                        }
+                        'Profile=Private'{
+                            It "The 'Profile' of this firewall rule should have 'Private'."{
+                                 $fwV | should be 'Profile=Private'                       
+                            }
+                        }
+                        'Profile=Public'{
+                            It "The 'Profile' of this firewall rule should have 'Public'."{
+                                 $fwV | should be 'Profile=Public'                       
+                            }
+                        }
+                    }
+                }               
+            }
+        }
+    }
+}
