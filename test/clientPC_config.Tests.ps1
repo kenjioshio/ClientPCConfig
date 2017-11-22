@@ -183,17 +183,18 @@ Describe ":Check User Access Contorol of this PC."{
         It "UAC should be disable(Level=0) in this PC."{
             #Resitory Keyでの値でUACの状態を判断
 
-            #$cUAL =  (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("EnableLUA")
-            $val_CPBA= (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("ConsentPromptBehaviorAdmin")
-            $val_PoSD= (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("PromptOnSecureDesktop")
-            #UAC Level 3 = Registryの'ConsentPromptBehaviorAdmin'が'2'でかつ'PromptOnSecureDesktop'が'1'.          
-            #UAC Level 2 = Registryの'ConsentPromptBehaviorAdmin'が'5'でかつ'PromptOnSecureDesktop'が'1'.   (Windows Default Value)         
-            #UAC Level 1 = Registryの'ConsentPromptBehaviorAdmin'が'5'でかつ'PromptOnSecureDesktop'が'0'.          
-            #UAC Level 0 = Registryの'ConsentPromptBehaviorAdmin'が'0'でかつ'PromptOnSecureDesktop'が'0'.
+            $val_LUA =  (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("EnableLUA")
+            $val_CPBA = (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("ConsentPromptBehaviorAdmin")
+            $val_PoSD = (Get-Item -Path "Registry::HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").GetValue("PromptOnSecureDesktop")
+            #UAC Level 3 = Registryの'EnableLUA'が'1'かつ'ConsentPromptBehaviorAdmin'が'2'でかつ'PromptOnSecureDesktop'が'1'.          
+            #UAC Level 2 = Registryの'EnableLUA'が'1'かつ'ConsentPromptBehaviorAdmin'が'5'でかつ'PromptOnSecureDesktop'が'1'.   (Windows Default Value)         
+            #UAC Level 1 = Registryの'EnableLUA'が'1'かつ'ConsentPromptBehaviorAdmin'が'5'でかつ'PromptOnSecureDesktop'が'0'.          
+            #UAC Level 0 = Registryの'EnableLUA'が'1'かつ'ConsentPromptBehaviorAdmin'が'0'でかつ'PromptOnSecureDesktop'が'0'.
+            #UAC Level 0´= Registryの'EnableLUA'が'0'かつ'ConsentPromptBehaviorAdmin'が'0'でかつ'PromptOnSecureDesktop'が'0'.(This can't control by Windows GUI.)
             $result = $false
-            if(($val_CPBA -eq 0) -and ($val_PoSD -eq 0)){
+            if(($val_LUA -eq 0) -and ($val_CPBA -eq 0) -and ($val_PoSD -eq 0)){
                 $result = $true       
-            
+
             }
             $result | Should be $true 
         }
@@ -234,11 +235,9 @@ Describe ":Check Network configuration."{
         $fwRulesObj = (Get-ItemProperty "registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules")
         #取得したオブジェクトはカスタムオブジェクトなのでデータをさらに加工する必要がある。
         $result = $false
-        foreach($fw in $fwRulesObj)
-        {
+        foreach($fw in $fwRulesObj){
             #Firewallのルールが追加される場合、追加したルールをチェックするため、このIf文のようなTest suitesをelseステートメントとして追加すること。
-            if($fw.'UDP 123')
-            {
+            if($fw.'UDP 123'){
                 $fwRuleValues = ($fw.'UDP 123').Split("|")
                 $result = $true
                 It "The name of firewall rule 'UDP 123' should exist."{
@@ -246,12 +245,9 @@ Describe ":Check Network configuration."{
                 }
      
                 #Write-Host $fwRuleValues
-                foreach($fwV in $fwRuleValues)
-                {
+                foreach($fwV in $fwRuleValues){
                     #Write-Host $fwV
-                    switch($fwV)
-                    {     
-
+                    switch($fwV){     
                         'Action=Allow'{
                             It "The controll property of this firewall rule should be 'Allow'."{
                                  $fwV | should be 'Action=Allow'                       
