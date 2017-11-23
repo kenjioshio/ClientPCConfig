@@ -70,16 +70,16 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         }
     }
     Context ":Check 'ReportGenerator' Installation and Configuration."{
-        It "'ReportGenerator.exe'should be exist in 'C:\ProgramData\chocolatey\bin'."{
+        It "'ReportGenerator.exe'should be exist in 'C:\ProgramData\chocolatey\lib\reportgenerator.portable\tools'."{
             #Chocolateyの仕様上、変なところにInstallされるが、PATHを設定すれば利用上問題ない。はず・・・
-            "C:\ProgramData\chocolatey\bin\ReportGenerator.exe" | Should Exist
+            "C:\ProgramData\chocolatey\lib\reportgenerator.portable\tools" | Should Exist
         }
         
         $DesiredVersion =$null
         #Version情報はpackage.configから取ってこれるとよいが、今はハードコーディングで実施。   
         $DesiredVersion = "3.0.0.0" 
         It "'OpenCover.Console.exe' should be 'Ver.$DesiredVersion'."{
-            $f_Version =(Get-ItemProperty "C:\ProgramData\chocolatey\bin\ReportGenerator.exe").VersionInfo.FileVersion
+            $f_Version =(Get-ItemProperty "C:\ProgramData\chocolatey\lib\reportgenerator.portable\tools\ReportGenerator.exe").VersionInfo.FileVersion
             $fileVersion = $f_Version.Replace(", ",".")       
             $fileVersion | Should be $DesiredVersion
         }
