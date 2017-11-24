@@ -99,6 +99,22 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
             $fileVersion | Should be $DesiredVersion
         }
     }
+    Context ":Check 'CLOC' Installation and Configuration."{
+        It "'cloc.exe' should be exist in 'C:\ProgramData\chocolatey\bin'."{
+            "C:\ProgramData\chocolatey\bin\cloc.exe" | Should Exist
+        }
+        #EXE FileのPropertyからVersion情報が取れないので無効にする。    
+        #$DesiredVersion =$null
+        #Version情報はEXEのFileVersionの表示上のDataと取得データが微妙に違うので、特別にハードコーディングで実施。
+        #$DesiredVersion = "1.72"
+        #It "'cloc.exe' should be 'Ver.$DesiredVersion'."{
+            #Chocolateyの仕様上、Install時のVersion指定とInstallされた後のRegistoryでVersionと桁が違うのでMatchで検証
+        #    $f_Version =(Get-ItemProperty "C:\ProgramData\chocolatey\bin\cloc.exe").VersionInfo.ProductVersion
+        #    $fileVersion = $f_Version.Replace(", ",".")       
+        #    $fileVersion | Should be $DesiredVersion
+        #}
+    }
+
 }
 
 Describe ":Check Environment Variables of this PC."{
@@ -120,35 +136,45 @@ Describe ":Check Environment Variables of this PC."{
             }
             $result | Should be $true 
         }
-            #環境変数'Path'が存在してることを確認してからその値を確認
-            if($result -eq $true){
-                $PathVaule =(Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment").GetValue("Path")
-                $PathValueObj= $PathVaule.split(";")
-                #環境変数をファイルに落としてContainを使うとエスケープが面倒なので、時間はかかるが'；'で区切って、配列化し、オブジェクトとしてToolごとにループを回して比較。
-                #冗長で実行時間も多少かかるがSimpleさを優先
+         
+        #環境変数'Path'が存在してることを確認してからその値を確認
+        $PathVaule =(Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment").GetValue("Path")
+        $PathValueObj= $PathVaule.split(";")
+        #環境変数をファイルに落としてContainを使うとエスケープが面倒なので、時間はかかるが'；'で区切って、配列化し、オブジェクトとしてToolごとにループを回して比較。
+        #冗長で実行時間も多少かかるがSimpleさを優先
             
-                It "'C:\Program Files\TortoiseSVN\bin' should be exist in environment variable 'Path'."{
-                    $result =$false
-                    foreach($pv in $PathValueObj){
-                        if($pv -eq "C:\Program Files\TortoiseSVN\bin"){
-                            $result = $true
-                            #Write-Host "C:\Program Files\TortoiseSVN\bin is exist as an Path Environment value "
-                        }
-                    }         
-                    $result | Should be $true     
+        It "'C:\Program Files\TortoiseSVN\bin' should be exist in environment variable 'Path'."{
+            $result =$false
+            foreach($pv in $PathValueObj){
+                if($pv -eq "C:\Program Files\TortoiseSVN\bin"){
+                    $result = $true
+                    #Write-Host "C:\Program Files\TortoiseSVN\bin is exist as an Path Environment value "
                 }
+            }         
+            $result | Should be $true     
+        }
                       
-                It "'C:\Program Files (x86)\NUnit 2.6.4\bin' should be exist in environment variable 'Path'."{
-                    $result =$false
-                    foreach($pv in $PathValueObj){
-                        if($pv -eq "C:\Program Files (x86)\NUnit 2.6.4\bin"){
-                            $result = $true
-                        }
-                    } 
-                    $result | Should be $true
+        It "'C:\Program Files (x86)\NUnit 2.6.4\bin' should be exist in environment variable 'Path'."{
+            $result =$false
+            foreach($pv in $PathValueObj){
+                if($pv -eq "C:\Program Files (x86)\NUnit 2.6.4\bin"){
+                    $result = $true
                 }
-       
             } 
+            $result | Should be $true
+        }
+                
+        It "'C:\ProgramData\chocolatey\bin' should be exist in environment variable 'Path'."{
+            $result =$false
+            foreach($pv in $PathValueObj){
+                if($pv -eq "C:\ProgramData\chocolatey\bin"){
+                    $result = $true
+                }
+            } 
+            $result | Should be $true
+        }
+
+
         #環境変数'VS120COMNTOOLS'が存在してることを確認してからその値を確認
         It "'VS120COMNTOOLS'envirnment variable should be exist in this PC."{
             $result =$false
@@ -160,7 +186,7 @@ Describe ":Check Environment Variables of this PC."{
             $result | Should be $true 
         }
         
-        if($result -eq $true){        
+#        if($result -eq $true){        
             $result = $false
             $VSTool_env =(Get-Item -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment").GetValue("VS120COMNTOOLS")
             if($VSTool_env -eq $null){
@@ -173,7 +199,7 @@ Describe ":Check Environment Variables of this PC."{
             It "'C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools\' should be exist in environment variable 'VS120COMNTOOLS'."{
                 $result | Should be $true  
             } 
-        }     
+#        }     
     }
 }
 
@@ -264,7 +290,7 @@ Describe ":Check Network configuration."{
                             }
                         }
                         'LPort=123'{
-                            It "This firewall rule should allow local port123."{
+                            It "This firewall rule should be allowed port number '123'."{
                                  $fwV | should be 'LPort=123'                       
                             }
                         }
