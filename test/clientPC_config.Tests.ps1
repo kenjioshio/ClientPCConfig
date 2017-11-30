@@ -16,7 +16,7 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         $DesiredVersion =$null
         #Version情報はpackage.configから取ってこれるとよいが、今はハードコーディングで実施。
         $DesiredVersion = "1.9.7.27907"
-        It "'TortoiseProc.exe' should be'Ver.$DesiredVersion'." {
+        It "'TortoiseProc.exe' should be 'Ver.$DesiredVersion'." {
             $f_Version =(Get-ItemProperty "C:\Program Files\TortoiseSVN\bin\TortoiseProc.exe").VersionInfo.FileVersion
             $fileVersion = $f_Version.Replace(", ",".")       
             $fileVersion | Should be $DesiredVersion
@@ -30,7 +30,7 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         $DesiredVersion =$null
         #Version情報はpackage.configから取ってこれるとよいが、今はハードコーディングで実施。
         $DesiredVersion = "2.6.4"
-        It "'NUnit.exe' should be 'Ver.$DesiredVersion'."{
+        It "'NUnit.exe' should match 'Ver.$DesiredVersion'."{
             #Chocolateyの仕様上、Install時のVersion指定とInstallされた後のRegistoryでVersionと桁が違うのでMatchで検証
             $f_Version =(Get-ItemProperty "C:\Program Files (x86)\NUnit 2.6.4\bin\nunit.exe").VersionInfo.FileVersion
             $fileVersion = $f_Version.Replace(", ",".")       
@@ -46,7 +46,7 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         $DesiredVersion =$null
         #Version情報はpackage.configから取ってこれるとよいが、今はハードコーディングで実施。
         $DesiredVersion = "16.21"
-        It "'procexp.exe' should be 'Ver.$DesiredVersion'."{
+        It "'procexp.exe' should match 'Ver.$DesiredVersion'."{
             #Chocolateyの仕様上、Install時のVersion指定とInstallされた後のRegistoryでVersionと桁が違うのでMatchで検証
             $f_Version =(Get-ItemProperty "C:\ProgramData\chocolatey\lib\procexp\tools\procexp.exe").VersionInfo.FileVersion
             $fileVersion = $f_Version.Replace(", ",".")       
@@ -54,7 +54,7 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         }
     }
     Context ":Check 'OpenCover' Installation and Configuration."{
-        It "'OpenCover.Console.exe'should be exist in '$env:USERPROFILE\AppData\Local\Apps\OpenCover'."{
+        It "'OpenCover.Console.exe' should be exist in '$env:USERPROFILE\AppData\Local\Apps\OpenCover'."{
             #Chocolateyの仕様上、変なところにInstallされるが、PATHを設定すれば利用上問題ない。はず…
             "$env:USERPROFILE\AppData\Local\Apps\OpenCover\OpenCover.Console.exe" | Should Exist
         }
@@ -62,7 +62,7 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         $DesiredVersion =$null
         #Version情報はpackage.configから取ってこれるとよいが、今はハードコーディングで実施。
         $DesiredVersion = "4.6.166"
-        It "'OpenCover.Console.exe' should be 'Ver.$DesiredVersion'."{
+        It "'OpenCover.Console.exe' should match 'Ver.$DesiredVersion'."{
             #Chocolateyの仕様上、Install時のVersion指定とInstallされた後のRegistoryでVersionと桁が違うのでMatchで検証
             $f_Version =(Get-ItemProperty "$env:USERPROFILE\AppData\Local\Apps\OpenCover\OpenCover.Console.exe").VersionInfo.FileVersion
             $fileVersion = $f_Version.Replace(", ",".")       
@@ -70,7 +70,7 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         }
     }
     Context ":Check 'ReportGenerator' Installation and Configuration."{
-        It "'ReportGenerator.exe'should be exist in 'C:\ProgramData\chocolatey\lib\reportgenerator.portable\tools'."{
+        It "'ReportGenerator.exe' should be exist in 'C:\ProgramData\chocolatey\lib\reportgenerator.portable\tools'."{
             #Chocolateyの仕様上、変なところにInstallされるが、PATHを設定すれば利用上問題ない。はず・・・
             "C:\ProgramData\chocolatey\lib\reportgenerator.portable\tools" | Should Exist
         }
@@ -176,7 +176,7 @@ Describe ":Check Environment Variables of this PC."{
 
 
         #環境変数'VS120COMNTOOLS'が存在してることを確認してからその値を確認
-        It "'VS120COMNTOOLS'envirnment variable should be exist in this PC."{
+        It "'VS120COMNTOOLS' envirnment variable should be exist in this PC."{
             $result =$false
             foreach($ev in $envVarObj){ 
                 if($ev -eq "VS120COMNTOOLS"){      
@@ -230,7 +230,7 @@ Describe ":Check User Access Contorol of this PC."{
 
 #NTPとして確認する設定は他にもあるけどとりあえず2ケース
 Describe ":Check NTP Configuration of this PC."{
-    Context ": Check whether NTP Configuration is desired state of not."{
+    Context ": Check whether NTP Configuration is desired state or not."{
         $NTPSvr = (Get-Item "Registry::HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters").GetValue("NtpServer")       
 
         $NTPSvrList= $NTPSvr.split(",")
