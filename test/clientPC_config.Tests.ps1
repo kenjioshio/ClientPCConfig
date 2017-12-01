@@ -54,17 +54,17 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
         }
     }
     Context ":Check 'OpenCover' Installation and Configuration."{
-        It "'OpenCover.Console.exe' should be exist in '$env:USERPROFILE\AppData\Local\Apps\OpenCover'."{
+        It "'OpenCover.Console.exe' should be exist in 'C:\ProgramData\chocolatey\bin'."{
             #Chocolateyの仕様上、変なところにInstallされるが、PATHを設定すれば利用上問題ない。はず…
             "$env:USERPROFILE\AppData\Local\Apps\OpenCover\OpenCover.Console.exe" | Should Exist
         }
         
         $DesiredVersion =$null
         #Version情報はpackage.configから取ってこれるとよいが、今はハードコーディングで実施。
-        $DesiredVersion = "4.6.166"
+        $DesiredVersion = "4.6.519"
         It "'OpenCover.Console.exe' should match 'Ver.$DesiredVersion'."{
             #Chocolateyの仕様上、Install時のVersion指定とInstallされた後のRegistoryでVersionと桁が違うのでMatchで検証
-            $f_Version =(Get-ItemProperty "$env:USERPROFILE\AppData\Local\Apps\OpenCover\OpenCover.Console.exe").VersionInfo.FileVersion
+            $f_Version =(Get-ItemProperty "C:\ProgramData\chocolatey\bin\OpenCover.Console.exe").VersionInfo.FileVersion
             $fileVersion = $f_Version.Replace(", ",".")       
             $fileVersion | Should match $DesiredVersion
         }
