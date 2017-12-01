@@ -56,7 +56,7 @@ Describe ":Checking whether Tools installation and the configuration of this PC 
     Context ":Check 'OpenCover' Installation and Configuration."{
         It "'OpenCover.Console.exe' should be exist in 'C:\ProgramData\chocolatey\bin'."{
             #Chocolateyの仕様上、変なところにInstallされるが、PATHを設定すれば利用上問題ない。はず…
-            "$env:USERPROFILE\AppData\Local\Apps\OpenCover\OpenCover.Console.exe" | Should Exist
+            "C:\ProgramData\chocolatey\bin\OpenCover.Console.exe" | Should Exist
         }
         
         $DesiredVersion =$null
